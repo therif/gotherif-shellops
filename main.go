@@ -49,52 +49,59 @@ func stream_copy(src io.Reader, dst io.Writer) <-chan int {
 }
 
 func CmdBashSudo(cmdnya string) {
-	if len(strings.TrimSpace(cmdnya)) > 0 {
-		cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
+	if cmdnya != "" {
+		if len(strings.TrimSpace(cmdnya)) > 0 {
+			cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
 
-		cmd.Stdin = os.Stdin
-		//cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+			cmd.Stdin = os.Stdin
+			//cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
 
-		stdout, err := cmd.Output()
-		if err != nil {
-			//fmt.Println("Err", err)
-			fmt.Fprintln(os.Stderr, err)
-			return
-		}
-		fmt.Println(string(stdout))
+			stdout, err := cmd.Output()
+			if err != nil {
+				//fmt.Println("Err", err)
+				fmt.Fprintln(os.Stderr, err)
+				return
+			}
+			fmt.Println(string(stdout))
+		}	
 	}
+
 }
 
 func AsyncCmdBashSudo(cmdnya string) {
-	cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	cmdReader, _ := cmd.StdoutPipe()
+	if cmdnya != "" {
+		cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
+		cmd.Stdin = os.Stdin
+		cmd.Stderr = os.Stderr
+		cmdReader, _ := cmd.StdoutPipe()
 
-	scanner := bufio.NewScanner(cmdReader)
-	done := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			fmt.Println(scanner.Text())
-		}
-		done <- true
-	}()
-	cmd.Start()
-	<-done
-	_ = cmd.Wait()
+		scanner := bufio.NewScanner(cmdReader)
+		done := make(chan bool)
+		go func() {
+			for scanner.Scan() {
+				fmt.Println(scanner.Text())
+			}
+			done <- true
+		}()
+		cmd.Start()
+		<-done
+		_ = cmd.Wait()
+	}
 
 }
 
 func CmdBash(cmdnya string) {
-	if len(strings.TrimSpace(cmdnya)) > 0 {
-		cmd := exec.Command("bash", "-c", cmdnya)
+	if cmdnya != "" {
+		if len(strings.TrimSpace(cmdnya)) > 0 {
+			cmd := exec.Command("bash", "-c", cmdnya)
 
-		stdout, err := cmd.Output()
-		if err != nil {
-			fmt.Println("Err", err)
-			return
+			stdout, err := cmd.Output()
+			if err != nil {
+				fmt.Println("Err", err)
+				return
+			}
+			fmt.Println(string(stdout))
 		}
-		fmt.Println(string(stdout))
 	}
 }
