@@ -8,10 +8,9 @@ For Golang Common simple using shell operations
 
 
 #### Install :
-go get 
-
+go get github.com/therif/gotherif-shellops
 
 #### Use Example :
-import
+import "github.com/therif/gotherif-shellops"
 
 shellops.Async
