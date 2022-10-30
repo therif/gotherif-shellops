@@ -50,8 +50,7 @@ func stream_copy(src io.Reader, dst io.Writer) <-chan int {
 
 func CmdBashSudo(cmdnya string, skipexec ...bool) {
 	if cmdnya != "" {
-		skipexec := false
-		if skipexec {
+		if skipexec[0] {
 			log.Println(cmdnya)
 		} else {
 			if len(strings.TrimSpace(cmdnya)) > 0 {
@@ -75,10 +74,10 @@ func CmdBashSudo(cmdnya string, skipexec ...bool) {
 
 func AsyncCmdBashSudo(cmdnya string, skipexec ...bool) {
 	if cmdnya != "" {
-		skipexec := false
-		if skipexec {
+		if skipexec[0] {
 			log.Println(cmdnya)
 		} else {
+
 			cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
 			cmd.Stdin = os.Stdin
 			cmd.Stderr = os.Stderr
@@ -101,8 +100,7 @@ func AsyncCmdBashSudo(cmdnya string, skipexec ...bool) {
 
 func CmdBash(cmdnya string, skipexec ...bool) {
 	if cmdnya != "" {
-		skipexec := false
-		if skipexec {
+		if skipexec[0] {
 			log.Println(cmdnya)
 		} else {
 			if len(strings.TrimSpace(cmdnya)) > 0 {
