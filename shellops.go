@@ -52,7 +52,7 @@ func CmdBashSudo(cmdnya string, skipexec ...bool) {
 	if cmdnya != "" {
 		skipexec := false
 		if skipexec {
-			fmt.Println(cmdnya)
+			log.Println(cmdnya)
 		} else {
 			if len(strings.TrimSpace(cmdnya)) > 0 {
 				cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
@@ -77,7 +77,7 @@ func AsyncCmdBashSudo(cmdnya string, skipexec ...bool) {
 	if cmdnya != "" {
 		skipexec := false
 		if skipexec {
-			fmt.Println(cmdnya)
+			log.Println(cmdnya)
 		} else {
 			cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
 			cmd.Stdin = os.Stdin
@@ -103,7 +103,7 @@ func CmdBash(cmdnya string, skipexec ...bool) {
 	if cmdnya != "" {
 		skipexec := false
 		if skipexec {
-			fmt.Println(cmdnya)
+			log.Println(cmdnya)
 		} else {
 			if len(strings.TrimSpace(cmdnya)) > 0 {
 				cmd := exec.Command("bash", "-c", cmdnya)
