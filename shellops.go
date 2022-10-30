@@ -48,60 +48,73 @@ func stream_copy(src io.Reader, dst io.Writer) <-chan int {
 	return sync_channel
 }
 
-func CmdBashSudo(cmdnya string) {
+func CmdBashSudo(cmdnya string, skipexec ...bool) {
 	if cmdnya != "" {
-		if len(strings.TrimSpace(cmdnya)) > 0 {
+		skipexec := false
+		if skipexec {
+			fmt.Println(cmdnya)
+		} else {
+			if len(strings.TrimSpace(cmdnya)) > 0 {
+				cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
+
+				cmd.Stdin = os.Stdin
+				//cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+
+				stdout, err := cmd.Output()
+				if err != nil {
+					//fmt.Println("Err", err)
+					fmt.Fprintln(os.Stderr, err)
+					return
+				}
+				fmt.Println(string(stdout))
+			}
+		}
+	}
+}
+
+func AsyncCmdBashSudo(cmdnya string, skipexec ...bool) {
+	if cmdnya != "" {
+		skipexec := false
+		if skipexec {
+			fmt.Println(cmdnya)
+		} else {
 			cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
-
 			cmd.Stdin = os.Stdin
-			//cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
+			cmdReader, _ := cmd.StdoutPipe()
 
-			stdout, err := cmd.Output()
-			if err != nil {
-				//fmt.Println("Err", err)
-				fmt.Fprintln(os.Stderr, err)
-				return
-			}
-			fmt.Println(string(stdout))
-		}	
+			scanner := bufio.NewScanner(cmdReader)
+			done := make(chan bool)
+			go func() {
+				for scanner.Scan() {
+					fmt.Println(scanner.Text())
+				}
+				done <- true
+			}()
+			cmd.Start()
+			<-done
+			_ = cmd.Wait()
+		}
 	}
-
 }
 
-func AsyncCmdBashSudo(cmdnya string) {
+func CmdBash(cmdnya string, skipexec ...bool) {
 	if cmdnya != "" {
-		cmd := exec.Command("bash", "-c", "sudo "+cmdnya)
-		cmd.Stdin = os.Stdin
-		cmd.Stderr = os.Stderr
-		cmdReader, _ := cmd.StdoutPipe()
+		skipexec := false
+		if skipexec {
+			fmt.Println(cmdnya)
+		} else {
+			if len(strings.TrimSpace(cmdnya)) > 0 {
+				cmd := exec.Command("bash", "-c", cmdnya)
 
-		scanner := bufio.NewScanner(cmdReader)
-		done := make(chan bool)
-		go func() {
-			for scanner.Scan() {
-				fmt.Println(scanner.Text())
+				stdout, err := cmd.Output()
+				if err != nil {
+					fmt.Println("Err", err)
+					return
+				}
+				fmt.Println(string(stdout))
 			}
-			done <- true
-		}()
-		cmd.Start()
-		<-done
-		_ = cmd.Wait()
-	}
-
-}
-
-func CmdBash(cmdnya string) {
-	if cmdnya != "" {
-		if len(strings.TrimSpace(cmdnya)) > 0 {
-			cmd := exec.Command("bash", "-c", cmdnya)
-
-			stdout, err := cmd.Output()
-			if err != nil {
-				fmt.Println("Err", err)
-				return
-			}
-			fmt.Println(string(stdout))
 		}
 	}
 }
